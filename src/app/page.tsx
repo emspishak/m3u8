@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import styles from './styles.module.css';
 
 export default function Home() {
   const [curl, setCurl] = useState('');
@@ -25,25 +26,32 @@ export default function Home() {
   }
 
   return (
-    <>
-      <h1>m3u8</h1>
+    <div className="m-2">
+      <h1 className="text-3xl">m3u8</h1>
       {m3u8 ? (
         <div>
           <video src={m3u8} controls autoPlay ref={videoRef}></video>
-          <button onClick={skipToLive}>Skip to live</button>
+          <button className={`${styles.btn} my-1`} onClick={skipToLive}>
+            Skip to live
+          </button>
         </div>
       ) : (
         <div>
           <label>
-            Copy as curl
+            Copy as curl:
             <textarea
+              className="border-2 block w-100 h-50"
               value={curl}
               onChange={(e) => setCurl(e.target.value)}
             ></textarea>
           </label>
-          <button onClick={play}>Play</button>
+          <div>
+            <button className={`${styles.btn} my-1`} onClick={play}>
+              Play
+            </button>
+          </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
