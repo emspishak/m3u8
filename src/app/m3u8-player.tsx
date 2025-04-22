@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import styles from './styles.module.css';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -12,6 +12,8 @@ export default function M3u8Player({
   const searchParams = useSearchParams();
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  const [editMode, setEditMode] = useState(false);
 
   async function play(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -28,6 +30,7 @@ export default function M3u8Player({
       newUrl = `${newUrl}?${new URLSearchParams({ c: btoa(curl) }).toString()}`;
     }
 
+    setEditMode(false);
     router.push(newUrl);
   }
 
@@ -35,6 +38,10 @@ export default function M3u8Player({
     if (videoRef.current) {
       videoRef.current.currentTime = 999999999;
     }
+  }
+
+  function enterEditMode() {
+    setEditMode(true);
   }
 
   let newM3u8Url: string | undefined;
@@ -45,11 +52,14 @@ export default function M3u8Player({
   return (
     <div className="m-2">
       <h1 className="text-3xl">m3u8</h1>
-      {newM3u8Url ? (
+      {newM3u8Url && !editMode ? (
         <div>
           <video src={newM3u8Url} controls autoPlay ref={videoRef}></video>
-          <button className={`${styles.btn} my-1`} onClick={skipToLive}>
+          <button className={`${styles.btn} m-2`} onClick={skipToLive}>
             Skip to live
+          </button>
+          <button className={styles.btn} onClick={enterEditMode}>
+            Edit command
           </button>
         </div>
       ) : (
