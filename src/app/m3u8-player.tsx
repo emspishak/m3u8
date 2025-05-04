@@ -6,8 +6,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function M3u8Player({
   m3u8Url,
+  referer,
 }: {
   m3u8Url: string | undefined;
+  referer: string | undefined;
 }) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -46,7 +48,11 @@ export default function M3u8Player({
 
   let newM3u8Url: string | undefined;
   if (m3u8Url) {
-    newM3u8Url = `/api/m3u8?${new URLSearchParams({ m3u8: m3u8Url })}`;
+    const params = new URLSearchParams({ m3u8: m3u8Url });
+    if (referer) {
+      params.set('referer', referer);
+    }
+    newM3u8Url = `/api/m3u8?${params}`;
   }
 
   return (
