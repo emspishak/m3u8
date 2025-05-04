@@ -7,9 +7,11 @@ import { useRouter, useSearchParams } from 'next/navigation';
 export default function M3u8Player({
   m3u8Url,
   referer,
+  encryptionKey,
 }: {
   m3u8Url: string | undefined;
   referer: string | undefined;
+  encryptionKey: string | undefined;
 }) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -26,10 +28,23 @@ export default function M3u8Player({
     ) as HTMLTextAreaElement | null;
     const curl = curlElement?.value;
 
+    const keyElement = form.elements.namedItem(
+      'key'
+    ) as HTMLInputElement | null;
+    const key = keyElement?.value;
+
     let newUrl = '/';
 
+    const params = new URLSearchParams();
     if (curl) {
-      newUrl = `${newUrl}?${new URLSearchParams({ c: btoa(curl) }).toString()}`;
+      params.set('c', btoa(curl));
+    }
+    if (key) {
+      params.set('k', key);
+    }
+
+    if (params.size > 0) {
+      newUrl = `${newUrl}?${params}`;
     }
 
     setEditMode(false);
@@ -51,6 +66,9 @@ export default function M3u8Player({
     const params = new URLSearchParams({ m3u8: m3u8Url });
     if (referer) {
       params.set('referer', referer);
+    }
+    if (encryptionKey) {
+      params.set('key', encryptionKey);
     }
     newM3u8Url = `/api/m3u8?${params}`;
   }
@@ -77,6 +95,15 @@ export default function M3u8Player({
               name="curl"
               defaultValue={atob(searchParams.get('c') || '')}
             ></textarea>
+          </label>
+          <label>
+            Key:
+            <input
+              className="border-2"
+              type="text"
+              name="key"
+              defaultValue={searchParams.get('k') || ''}
+            ></input>
           </label>
           <div>
             <button className={`${styles.btn} my-1`} type="submit">
