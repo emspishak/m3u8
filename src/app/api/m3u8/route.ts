@@ -1,5 +1,11 @@
 import { NextRequest } from 'next/server';
 
+const PROXY_MEDIA_HOSTS = new Set([
+  's-c2.aistrem.net',
+  's-c3.aistrem.net',
+  's-c4.aistrem.net',
+]);
+
 export async function GET(request: NextRequest) {
   const m3u8Url = request.nextUrl.searchParams.get('m3u8');
   if (!m3u8Url) {
@@ -13,7 +19,7 @@ export async function GET(request: NextRequest) {
   });
   const m3u8Text = await m3u8.text();
 
-  return new Response(processM3u8(m3u8Url, m3u8Text, key), {
+  return new Response(processM3u8(m3u8Url, m3u8Text, key, referer), {
     headers: { 'Content-Type': 'application/vnd.apple.mpegurl' },
   });
 }
@@ -21,7 +27,8 @@ export async function GET(request: NextRequest) {
 function processM3u8(
   m3u8Url: string,
   m3u8: string,
-  key: string | null
+  key: string | null,
+  referer: string | null
 ): string {
   const lines = m3u8.split('\n');
   for (let i = 0; i < lines.length; i++) {
@@ -30,7 +37,7 @@ function processM3u8(
       line = handleKeyLine(line, key);
     }
     if (line.endsWith('.ts')) {
-      line = new URL(line, m3u8Url).toString();
+      line = handleMediaLine(line, m3u8Url, referer);
     }
     lines[i] = line;
   }
@@ -50,4 +57,20 @@ function handleKeyLine(line: string, key: string): string {
     components[i] = component;
   }
   return [parts[0], components.join(',')].join(':');
+}
+
+function handleMediaLine(
+  line: string,
+  m3u8Url: string,
+  referer: string | null
+): string {
+  const mediaUrl = new URL(line, m3u8Url);
+  if (PROXY_MEDIA_HOSTS.has(mediaUrl.host)) {
+    const params = new URLSearchParams({ url: mediaUrl.toString() });
+    if (referer) {
+      params.set('referer', referer);
+    }
+    return `/api/media?${params}`;
+  }
+  return mediaUrl.toString();
 }
