@@ -4,7 +4,7 @@ import { toJsonObject } from 'curlconverter';
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ c?: string; k?: string }>;
+  searchParams: Promise<{ c?: string; k?: string; t?: string }>;
 }) {
   let m3u8Url = undefined;
   let referer = undefined;
@@ -21,6 +21,7 @@ export default async function Home({
       m3u8Url={m3u8Url}
       referer={referer}
       encryptionKey={resolvedSearchParams.k}
+      cdnToken={resolvedSearchParams.t}
     ></M3u8Player>
   );
 }

@@ -7,5 +7,12 @@ export async function GET(request: NextRequest) {
   }
 
   const referer = request.nextUrl.searchParams.get('referer');
-  return fetch(url, { headers: referer ? { Referer: referer } : {} });
+  const token = request.nextUrl.searchParams.get('token');
+
+  return fetch(url, {
+    headers: {
+      ...(referer ? { Referer: referer } : {}),
+      ...(token ? { 'x-cdn-token': token } : {}),
+    },
+  });
 }

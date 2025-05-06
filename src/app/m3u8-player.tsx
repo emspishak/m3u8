@@ -8,10 +8,12 @@ export default function M3u8Player({
   m3u8Url,
   referer,
   encryptionKey,
+  cdnToken,
 }: {
   m3u8Url: string | undefined;
   referer: string | undefined;
   encryptionKey: string | undefined;
+  cdnToken: string | undefined;
 }) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -33,6 +35,11 @@ export default function M3u8Player({
     ) as HTMLInputElement | null;
     const key = keyElement?.value;
 
+    const cdnTokenElement = form.elements.namedItem(
+      'cdn-token'
+    ) as HTMLInputElement | null;
+    const token = cdnTokenElement?.value;
+
     let newUrl = '/';
 
     const params = new URLSearchParams();
@@ -41,6 +48,9 @@ export default function M3u8Player({
     }
     if (key) {
       params.set('k', key);
+    }
+    if (token) {
+      params.set('t', token);
     }
 
     if (params.size > 0) {
@@ -69,6 +79,9 @@ export default function M3u8Player({
     }
     if (encryptionKey) {
       params.set('key', encryptionKey);
+    }
+    if (cdnToken) {
+      params.set('token', cdnToken);
     }
     newM3u8Url = `/api/m3u8?${params}`;
   }
@@ -119,6 +132,15 @@ export default function M3u8Player({
               type="text"
               name="key"
               defaultValue={searchParams.get('k') || ''}
+            ></input>
+          </label>
+          <label>
+            CDN Token:
+            <input
+              className="border-2"
+              type="text"
+              name="cdn-token"
+              defaultValue={searchParams.get('t') || ''}
             ></input>
           </label>
           <div>
