@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styles from './styles.module.css';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -72,6 +72,22 @@ export default function M3u8Player({
     }
     newM3u8Url = `/api/m3u8?${params}`;
   }
+
+  useEffect(() => {
+    async function polyfillHls() {
+      if (
+        newM3u8Url &&
+        videoRef.current &&
+        !videoRef.current.canPlayType('application/vnd.apple.mpegurl')
+      ) {
+        const Hls = (await import('hls.js')).default;
+        const hls = new Hls();
+        hls.loadSource(newM3u8Url);
+        hls.attachMedia(videoRef.current);
+      }
+    }
+    polyfillHls();
+  });
 
   return (
     <div className="m-2">
