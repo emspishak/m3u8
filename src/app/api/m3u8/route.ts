@@ -64,7 +64,7 @@ function handleExtendedLine(
 }
 
 function handleKeyLine(line: string, key: string): string {
-  return handleExtendedLine(line, function (component: string): string {
+  return handleExtendedLine(line, (component: string): string => {
     if (component.startsWith('URI=')) {
       return `URI="/api/key?key=${key}"`;
     }
@@ -73,7 +73,7 @@ function handleKeyLine(line: string, key: string): string {
 }
 
 function handleMediaLine(line: string, token: string | null): string {
-  return handleExtendedLine(line, function (component: string): string {
+  return handleExtendedLine(line, (component: string): string => {
     if (component.startsWith('URI=')) {
       const parts = component.split('=');
       const m3u8Url = parts[1].slice(1, -1);
